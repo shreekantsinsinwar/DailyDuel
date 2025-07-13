@@ -1,0 +1,78 @@
+name: Build DailyDuel App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build EXE
+        run: pyinstaller --onefile --windowed DailyDuel.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: DailyDuel-Windows
+          path: dist/DailyDuel.exe
+
+  build-macos:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip3 install pyinstaller
+          pip3 install -r requirements.txt
+
+      - name: Build DMG
+        run: pyinstaller --onefile --windowed DailyDuel.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: DailyDuel-macOS
+          path: dist/DailyDuel
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build AppImage
+        run: pyinstaller --onefile --windowed DailyDuel.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: DailyDuel-Linux
+          path: dist/DailyDuel
