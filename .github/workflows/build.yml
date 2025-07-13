@@ -1,78 +1,85 @@
-name: Build DailyDuel App
+name: Build Executables
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    paths:
+      - 'DailyDuel.py'
+      - '.github/workflows/build.yml'
+      - 'requirements.txt'
   workflow_dispatch:
 
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install pyinstaller
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
 
-      - name: Build EXE
-        run: pyinstaller --onefile --windowed DailyDuel.py
+      - name: Build Windows Executable
+        run: pyinstaller --onefile --noconsole --distpath dist DailyDuel.py
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload Artifact (.exe)
+        uses: actions/upload-artifact@v4
         with:
           name: DailyDuel-Windows
           path: dist/DailyDuel.exe
 
-  build-macos:
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: |
-          pip3 install pyinstaller
-          pip3 install -r requirements.txt
-
-      - name: Build DMG
-        run: pyinstaller --onefile --windowed DailyDuel.py
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: DailyDuel-macOS
-          path: dist/DailyDuel
-
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install pyinstaller
-          pip install -r requirements.txt
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt pyinstaller
 
-      - name: Build AppImage
-        run: pyinstaller --onefile --windowed DailyDuel.py
+      - name: Build Linux AppImage
+        run: pyinstaller --onefile --distpath dist DailyDuel.py
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload Artifact (.AppImage)
+        uses: actions/upload-artifact@v4
         with:
           name: DailyDuel-Linux
+          path: dist/DailyDuel
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt pyinstaller
+
+      - name: Build macOS Executable
+        run: pyinstaller --onefile --distpath dist DailyDuel.py
+
+      - name: Upload Artifact (.dmg)
+        uses: actions/upload-artifact@v4
+        with:
+          name: DailyDuel-macOS
           path: dist/DailyDuel
